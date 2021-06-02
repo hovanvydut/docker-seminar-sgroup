@@ -16,11 +16,11 @@ const configDB = {
 console.log("-----------");
 console.log(configDB);
 
-let connection;
+const connection = mysql.createConnection(configDB);
 
 app.get('/', (req, res) => {
     
-    getConnection().query('select * from members', function (err, rows, fields) {
+    connection.query('select * from members', function (err, rows, fields) {
         if (err) throw err
         
         let result = "";
@@ -35,10 +35,3 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`);
 })
-
-function getConnection() {
-    if (connection == null) {
-        connection = mysql.createConnection(configDB);
-    }
-    return connection;
-}
