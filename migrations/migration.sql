@@ -1,3 +1,5 @@
+drop database if exists seminar_sgroup;
+
 create database seminar_sgroup;
 
 use seminar_sgroup;

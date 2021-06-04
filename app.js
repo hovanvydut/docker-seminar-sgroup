@@ -1,10 +1,8 @@
 const express = require('express');
 const mysql = require('mysql')
 const app = express();
-const waitForMySql = require('wait-for-mysql');
 
 const port = 3000;
-
 
 const configDB = {
     host: process.env.DB_HOST,
@@ -13,7 +11,6 @@ const configDB = {
     database: process.env.DB_NAME,
 }
 
-console.log("-----------");
 console.log(configDB);
 
 const connection = mysql.createConnection(configDB);
@@ -23,12 +20,7 @@ app.get('/', (req, res) => {
     connection.query('select * from members', function (err, rows, fields) {
         if (err) throw err
         
-        let result = "";
-        for (let row of rows) {
-            result += row.id + " | " + row.name + "\n";
-        }
-
-        res.send(result);
+        res.json(rows);
     });
 })
 
