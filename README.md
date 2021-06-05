@@ -28,14 +28,16 @@ Các bạn vui lòng cài đặt trước môi trường:
 
 &nbsp;
 
+Trước tiên mọi nguời cần clone repo demo về
+```sh
+git clone <url-repo>
+```
+
 1. Mọi  nguời tiến hành tạo database theo như đoạn script có sẵn trong `migrations/migration.sql`
 
 2. Sau đó chạy các command sau
 
 ```sh
-git clone <url-repo>
-
-git checkout vy-starter
 
 cd seminar-docker-sgroup/
 
@@ -198,11 +200,13 @@ Dựa vào 2 phase trước, ta sẽ tiến hành nâng cấp ứng dụng lên.
     ```sh
     docker network create --driver=bridge seminar-docker-sgroup-network
     ```
-    Connect cái network đó tới mysql và alias cái ip container network đó là `mysqlHost` :
+    Connect cái network đó tới mysql và gán alias cái ip container network đó là `mysqlHost` :
 
     ```sh
     docker network connect --alias mysqlHost seminar-docker-sgroup-network <mysql-container-id>
     ```
+
+    > Note: --alias: . The embedded DNS server maintains the mapping between all of the container aliases and its IP address on a specific user-defined network. A container can have different aliases in different networks by using the --alias option in docker network connect command. Readmore: [docs](https://docs.docker.com/engine/reference/commandline/network_connect/)
 
     Ta sẽ khởi chạy container từ `simple-node-app:1.0` image cũng như connect nó tới cùng `seminar-docker-sgroup-network` network cái mà `mysql-container` cũng đã connect như ở trên
 
@@ -212,14 +216,55 @@ Dựa vào 2 phase trước, ta sẽ tiến hành nâng cấp ứng dụng lên.
 
     Mở trình duyệt lên tại địa chỉ http://localhost:3001/ để xem kết quả
 
+    > Note: Lúc này dùng lệnh `docker container inspect mysql-container` và `docker container inspect seminar-node-app` sẽ thấy thằng `seminar-node-app` nó chỉ có duy nhất 1 network là thằng `seminar-docker-sgroup-network`, trong khi thằng `mysql-container` là có tới 2 cái network là `bridge` và `seminar-docker-sgroup-network`. Đó là bởi vì `mysql-container` ban đầu khởi chạy không có gán network cho nó, nên nó sẽ nhận mặc định một cái `bridge` default network, sau đó chúng ta mới tiến hành connect cái `seminar-docker-sgroup-network` tới cái `mysql-container` đang chạy. (Lưu ý, tại 1 thời điểm 1 container chỉ có thể dùng 1 network thôi, mặc dù chúng ta có thể add nhiều network vào container)
 
 &nbsp;
 
 ### 📎 Phase 4: Run app using docker-compose
 
 &nbsp;
+Sau khi hiểu được 3 giai đoạn phía trên, thì việc viết `docker-compose` chỉ là công việc tổ hợp lại các bước trên một cách ngắn gọn
+
+1. Tạo một file `docker-compose.yml` cùng cấp với `Dockerfile`
+2. Nội dung file `docker-compose.yml` như sau:
+```sh
+version: "3.9"
+
+services:
+    node-app:
+        build:
+            context: .
+        environment: 
+            - DB_HOST=mysqldb
+            - DB_USER=seminar_sgroup
+            - DB_PASSWORD=root
+            - DB_NAME=123123
+        restart: always
+        ports:
+            - 3001:3000
+        depends_on: 
+            - mysqldb
+        networks: 
+            - backendnetwork
+    mysqldb:
+        image: mysql:8.0.25
+        restart: always
+        command: --default-authentication-plugin=mysql_native_password
+        environment: 
+            - MYSQL_ROOT_PASSWORD=123123
+        volumes: 
+            - ./migrations/:/docker-entrypoint-initdb.d
+            - ./storage:/var/lib/mysql
+        networks: 
+            - backendnetwork
+
+networks: 
+    backendnetwork:
+        driver: bridge
+```
+
+> Note: Để truy cập terminal của 1 container thì có thể dùng lệnh sau: docke  exec -it <container-id>
 
 [sgroup-logo]: https://res.cloudinary.com/dgext7ewd/image/upload/v1622822649/github-profile/small-sgroup-logo_p0xwbb.png
 
-docker ps
-docke  exec -it 8992
+
