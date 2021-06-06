@@ -42,7 +42,7 @@ git clone -b https://github.com/dangphu2412/simple-docker.git
 
 ```sh
 
-cd seminar-docker-sgroup/
+cd simple-docker/
 
 npm i
 
