@@ -22,6 +22,8 @@ Các bạn vui lòng cài đặt trước môi trường:
 3. Cotainerized app nodejs, sau đó connect với mysql container đã build ở giai đoạn 2 thông qua network
 4. Từ những gì đạt được ở giai đoạn 3, tiến hành viết docker-compose cho toàn bộ ứng dụng nodejs + mysql
 
+> 👉 You can see solution on `solution` branch
+
 &nbsp;
 
 ### 📎 Phase 1: Run app without Docker
